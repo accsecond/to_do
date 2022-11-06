@@ -24,27 +24,22 @@ class TodoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const notCompletedIconColor = Color(0xFF4ED9D6);
     final completedIconColor = notCompletedIconColor.withAlpha(100);
-    return
-        // Card(
-        //   // elevation: 2,
-        //   shape: RoundedRectangleBorder(
-        //     borderRadius: BorderRadius.circular(15.0),
-        //   ),
-        Slidable(
+    return Slidable(
       key: const ValueKey(0),
       endActionPane: ActionPane(
         motion: const StretchMotion(),
         dismissible: DismissiblePane(
+          key: UniqueKey(),
           onDismissed: () {
             onDelete(_todo);
           },
           closeOnCancel: true,
-          confirmDismiss: () async {
-            // var isConfirmed = await _showConfirmationDialog(context, "delete") ?? false;
-            var isConfirmed =
-                await showConfirmationDialog(context, "delete") ?? false;
-            return isConfirmed;
-          },
+          // confirmDismiss: () async {
+          //   // var isConfirmed = await _showConfirmationDialog(context, "delete") ?? false;
+          //   var isConfirmed =
+          //       await showConfirmationDialog(context, "delete") ?? false;
+          //   return isConfirmed;
+          // },
         ),
         children: [
           SlidableAction(
@@ -62,27 +57,19 @@ class TodoCard extends StatelessWidget {
             foregroundColor: Colors.white,
             icon: Icons.delete,
             label: "Delete",
+            borderRadius: BorderRadius.circular(15),
             // borderRadius: ,
           ),
-          // SlidableAction(
-          //   flex: 1,
-          //   onPressed: (context) async {},
-          //   backgroundColor: const Color(0xFF7BC043),
-          //   foregroundColor: Colors.white,
-          //   icon: Icons.archive,
-          //   label: "Archive",
-          // )
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(0.0),
-        //   shape: RoundedRectangleBorder(
-        //     borderRadius: BorderRadius.circular(15.0),
-        //   ),
+      child: Container(
+        // padding: const EdgeInsets.all(0.0),
+        margin: const EdgeInsets.symmetric(vertical: 5),
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
+          elevation: 2,
           child: ListTile(
             // tileColor: Colors.amber,
             title: Text(
@@ -94,6 +81,8 @@ class TodoCard extends StatelessWidget {
                     ? TextDecoration.lineThrough
                     : TextDecoration.none,
                 color: _todo.isCompleted ? Colors.grey : Colors.black,
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
               ),
             ),
             subtitle: Text(
@@ -121,12 +110,34 @@ class TodoCard extends StatelessWidget {
                 onTap(_todo);
               },
             ),
-            trailing: Text(
-              DateFormat().format(_todo.dueTime!),
-              // "Sun, Nov 7 2022",
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
-              ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  DateFormat.yMMMEd().format(_todo.dueTime!),
+                  // maxLines: 2,
+                  // "Sun, Nov 7 2022",
+                  style: TextStyle(
+                    decoration: _todo.isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  DateFormat.Hm().format(_todo.dueTime!),
+                  // maxLines: 2,
+                  // "Sun, Nov 7 2022",
+                  style: TextStyle(
+                    decoration: _todo.isCompleted
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
             onTap: () {
               onEdit(_todo);

@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:to_do/screens/todo_screen.dart';
+import 'package:to_do/services/todo_db_service.dart';
+import 'package:to_do/utils/utils.dart';
 
 import '../models/todo.dart';
 
@@ -7,10 +10,12 @@ import '../widgets/todo_card.dart';
 
 class TodoListTab extends StatelessWidget {
   final ValueListenable<List<Todo>> valueListenable;
+  final String? search;
 
   const TodoListTab({
     Key? key,
     required this.valueListenable,
+    this.search,
   }) : super(key: key);
 
   @override
@@ -18,46 +23,37 @@ class TodoListTab extends StatelessWidget {
     return ValueListenableBuilder(
         valueListenable: valueListenable,
         builder: (BuildContext builderContext, List<Todo> todos, _) {
-          return todos.isNotEmpty
+          var filteredTodos = filterTodosBySearch(todos, search);
+          // return todos.isNotEmpty
+          return filteredTodos.isNotEmpty
               ? ListView.builder(
-                  itemCount: todos.length,
+                  // itemCount: todos.length,
+                  itemCount: filteredTodos.length,
                   itemBuilder: (context, index) {
                     return TodoCard(
-                      todo: todos[index],
-                      // Todo(
-                      //   id: "1",
-                      //   title: "titlee",
-                      //   description: "description",
-                      //   isCompleted: index % 2 == 0,
-                      // ),
-                      onTap: (todo) {
-                        // todo.isCompleted = !todo.isCompleted;
-                        // context.read<TodosProvider>().update(todo);
+                      todo: filteredTodos[index],
+                      onTap: (todo) async {
+                        final tempTodo = getTodo(todo.id);
+                        tempTodo.isCompleted = !tempTodo.isCompleted;
+
+                        await updateTodo(tempTodo);
                       },
-                      onDelete: (todo) {
-                        // context.read<TodosProvider>().removeTodo(todo);
+                      onDelete: (todo) async {
+                        await deleteTodo(todo);
                       },
                       onEdit: (todo) {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     fullscreenDialog: true,
-                        //     builder: (_) {
-                        //       return ChangeNotifierProvider<TodosProvider>.value(
-                        //         value: context.read<TodosProvider>(),
-                        //         child: TodosFormScreen(
-                        //           todo: todo,
-                        //         ),
-                        //       );
-                        //     },
-                        //   ),
-                        // );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => TodoScreen(todo: todo),
+                          ),
+                        );
                       },
                     );
                   },
                 )
               : Container(
-                  margin: const EdgeInsets.only(top: 30),
+                  margin: const EdgeInsets.only(top: 10),
+                  alignment: Alignment.topCenter,
                   child: const Text(
                     "There is currently no todo!",
                     style: TextStyle(

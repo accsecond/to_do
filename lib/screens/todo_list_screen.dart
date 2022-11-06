@@ -15,19 +15,19 @@ class TodoListScreen extends StatefulWidget {
   State<TodoListScreen> createState() => _TodoListScreenState();
 }
 
-class _TodoListScreenState extends State<TodoListScreen> {
+class _TodoListScreenState extends State<TodoListScreen>
+    with SingleTickerProviderStateMixin {
   // late Box<Todo> box;
   // late List<Todo> todos;
   // var service = TodoService();
   int tabIndex = 0;
-  late TodoDBService todoDBService;
+  late TabController tabController;
+  String? search;
 
   @override
   void initState() {
-    todoDBService = TodoDBService();
-    // var todos = todoDBService.getTodos();
-    // print(todos);
-    todoDBService.getTodos();
+    tabController = TabController(length: 3, vsync: this);
+    getTodos();
 
     super.initState();
   }
@@ -43,20 +43,21 @@ class _TodoListScreenState extends State<TodoListScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // FocusManager.instance.primaryFocus?.unfocus();
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
+        FocusManager.instance.primaryFocus?.unfocus();
+        // FocusScopeNode currentFocus = FocusScope.of(context);
+        // if (!currentFocus.hasPrimaryFocus) {
+        //   currentFocus.unfocus();
+        // }
       },
       child: Scaffold(
         // extendBodyBehindAppBar: true,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text(
+          title: Text(
             "Todo List",
             style: TextStyle(
-              color: Colors.black87,
+              // color: Colors.black87,
+              color: Colors.blue[700],
               fontWeight: FontWeight.w700,
               fontSize: 28,
             ),
@@ -103,91 +104,78 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     border: InputBorder.none,
                     hintText: "Search todos",
                   ),
-                  onChanged: (text) {},
-                ),
-              ),
-              DefaultTabController(
-                length: 3,
-                child: TabBar(
-                  onTap: (index) {
+                  onChanged: (text) {
                     setState(() {
-                      tabIndex = index;
+                      search = text;
                     });
                   },
-                  labelColor: Colors.blue,
-                  unselectedLabelColor: Colors.grey,
-                  isScrollable: true,
-                  tabs: const [
-                    Tab(
-                      text: "All",
-                    ),
-                    Tab(
-                      text: "Today",
-                    ),
-                    Tab(
-                      text: "Upcoming",
-                    ),
-                  ],
                 ),
+              ),
+              TabBar(
+                controller: tabController,
+                // onTap: (index) {
+                //   setState(() {
+                //     tabIndex = index;
+                //   });
+                // },
+
+                labelColor: Colors.blue,
+                unselectedLabelColor: Colors.grey,
+                // isScrollable: true,
+                tabs: const [
+                  Tab(
+                    text: "All",
+                  ),
+                  Tab(
+                    text: "Today",
+                  ),
+                  Tab(
+                    text: "Upcoming",
+                  ),
+                ],
               ),
               const SizedBox(
                 height: 10,
               ),
               Expanded(
-                child: TodoListTab(
-                  valueListenable: todoDBService.allTodosNotifier,
+                child: TabBarView(
+                  controller: tabController,
+                  children: [
+                    // Expanded(
+                    //   child: TodoListTab(
+                    //     // valueListenable: todoDBService.allTodosNotifier,
+                    //     valueListenable: allTodosNotifier,
+                    //   ),
+                    // ),
+                    // Expanded(
+                    //   child: TodoListTab(
+                    //     // valueListenable: todoDBService.allTodosNotifier,
+                    //     valueListenable: todayTodosNotifier,
+                    //   ),
+                    // ),
+                    // Expanded(
+                    //   child: TodoListTab(
+                    //     // valueListenable: todoDBService.allTodosNotifier,
+                    //     valueListenable: upcomingTodosNotifier,
+                    //   ),
+                    // ),
+                    TodoListTab(
+                      // valueListenable: todoDBService.allTodosNotifier,
+                      valueListenable: allTodosNotifier,
+                      search: search,
+                    ),
+                    TodoListTab(
+                      // valueListenable: todoDBService.allTodosNotifier,
+                      valueListenable: todayTodosNotifier,
+                      search: search,
+                    ),
+                    TodoListTab(
+                      // valueListenable: todoDBService.allTodosNotifier,
+                      valueListenable: upcomingTodosNotifier,
+                      search: search,
+                    ),
+                  ],
                 ),
-                // todoDBService.allTodosNotifier.value.isNotEmpty
-                //     ? ListView.builder(
-                //         itemCount: todoDBService.allTodosNotifier.value.length,
-                //         itemBuilder: (context, index) {
-                //           var todos = todoDBService.allTodosNotifier.value;
-                //           return TodoCard(
-                //             todo: todos[index],
-                //             // Todo(
-                //             //   id: "1",
-                //             //   title: "titlee",
-                //             //   description: "description",
-                //             //   isCompleted: index % 2 == 0,
-                //             // ),
-                //             onTap: (todo) {
-                //               // todo.isCompleted = !todo.isCompleted;
-                //               // context.read<TodosProvider>().update(todo);
-                //             },
-                //             onDelete: (todo) {
-                //               // context.read<TodosProvider>().removeTodo(todo);
-                //             },
-                //             onEdit: (todo) {
-                //               // Navigator.push(
-                //               //   context,
-                //               //   MaterialPageRoute(
-                //               //     fullscreenDialog: true,
-                //               //     builder: (_) {
-                //               //       return ChangeNotifierProvider<TodosProvider>.value(
-                //               //         value: context.read<TodosProvider>(),
-                //               //         child: TodosFormScreen(
-                //               //           todo: todo,
-                //               //         ),
-                //               //       );
-                //               //     },
-                //               //   ),
-                //               // );
-                //             },
-                //           );
-                //         },
-                //       )
-                //     : Container(
-                //         margin: const EdgeInsets.only(top: 30),
-                //         child: const Text(
-                //           "There is currently no todo!",
-                //           style: TextStyle(
-                //             fontSize: 20,
-                //             fontWeight: FontWeight.bold,
-                //             fontStyle: FontStyle.italic,
-                //             color: Colors.grey,
-                //           ),
-                //         ),
-                //       ),
               ),
             ],
           ),

@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:to_do/models/todo.dart';
 import 'package:to_do/services/todo_db_service.dart';
 
 void sortTodosByDatetime(List<Todo> todos) {
   todos.sort((a, b) => a.dueTime!.compareTo(b.dueTime!));
+}
+
+List<Todo> filterTodosBySearch(List<Todo> todos, String? search) {
+  if (search == null || search.isEmpty || search.trim().isEmpty) {
+    return List<Todo>.from(todos);
+  } else {
+    return todos
+        .where(
+          (element) =>
+              element.title.toLowerCase().contains(search) ||
+              element.description.toLowerCase().contains(search),
+        )
+        .toList();
+  }
 }
 
 Future<bool?> showConfirmationDialog(BuildContext context, String action) {
@@ -33,7 +48,11 @@ showAddTodoForm(BuildContext context) {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  var todoDBService = TodoDBService();
+  // var todoDBService = TodoDBService();
+  DateTime? date = DateTime.now();
+  TimeOfDay? time;
+  String? timeString;
+  // var now = DateTime.now();
 
   return showModalBottomSheet(
       context: context,
@@ -63,6 +82,9 @@ showAddTodoForm(BuildContext context) {
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: 10,
+                ),
                 Form(
                   key: formKey,
                   child: Column(
@@ -77,6 +99,7 @@ showAddTodoForm(BuildContext context) {
                           formKey.currentState!.validate();
                         },
                         decoration: InputDecoration(
+                          labelText: "Title",
                           hintText: "Enter title",
                           enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
@@ -112,6 +135,7 @@ showAddTodoForm(BuildContext context) {
                       ),
                       TextFormField(
                         controller: descriptionController,
+                        maxLines: 4,
                         validator: (value) {
                           // value!.trim().isEmpty
                           return value!.isEmpty
@@ -122,6 +146,7 @@ showAddTodoForm(BuildContext context) {
                           formKey.currentState!.validate();
                         },
                         decoration: InputDecoration(
+                          labelText: "Description",
                           hintText: "Enter description",
                           enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
@@ -155,33 +180,170 @@ showAddTodoForm(BuildContext context) {
                       const SizedBox(
                         height: 10,
                       ),
+                      GestureDetector(
+                        child: Container(
+                          height: 50,
+                          // margin: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                DateFormat.yMMMEd().format(
+                                  date ?? DateTime.now(),
+                                ),
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.calendar_month_outlined,
+                                color: Colors.grey,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () async {
+                          DateTime? newDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+
+                          setState(() {
+                            date = newDate ?? DateTime.now();
+                          });
+                        },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      GestureDetector(
+                        child: Container(
+                          height: 50,
+                          // margin: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                timeString ?? "Select a time",
+                                // time != null
+                                //     ? "${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}"
+                                //     : "${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}",
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.schedule,
+                                color: Colors.grey,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: () async {
+                          TimeOfDay? newTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          setState(() {
+                            // time = newTime ??
+                            //     TimeOfDay.fromDateTime();
+
+                            if (newTime == null) {
+                              if (DateTime.now()
+                                      .add(
+                                        const Duration(minutes: 30),
+                                      )
+                                      .day >
+                                  DateTime.now().day) {
+                                date = date != null
+                                    ? date!.add(
+                                        const Duration(days: 1),
+                                      )
+                                    : DateTime.now().add(
+                                        const Duration(days: 1),
+                                      );
+                                time = TimeOfDay.fromDateTime(
+                                  DateTime.now().add(
+                                    const Duration(minutes: 30),
+                                  ),
+                                );
+                              } else {
+                                time = TimeOfDay.fromDateTime(
+                                  DateTime.now().add(
+                                    const Duration(minutes: 30),
+                                  ),
+                                );
+                              }
+
+                              timeString = time!.format(context);
+                            }
+                            time = newTime;
+                            timeString = time!.format(context);
+                          });
+                        },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
                       ElevatedButton(
                         onPressed: () async {
                           if (formKey.currentState!.validate()) {
-                            // var task = Todo(
-                            // date: selectedDate,
-                            // title: _controller.text,
-                            // category: selectedCategory ?? "Do Soon",
+                            // print(time != null
+                            //     ? time!.format(context)
+                            //     : "not choose");
+
+                            // print(
+                            //   DateFormat.yMMMEd().format(
+                            //     date ?? DateTime.now(),
+                            //   ),
                             // );
-                            // var todo = Todo(title: title, description: description, isCompleted: isCompleted,);
                             var todo = Todo(
+                              id: DateTime.now().toIso8601String(),
                               title: titleController.text,
                               description: descriptionController.text,
                               isCompleted: false,
-                              dueTime: DateTime.now().add(
-                                const Duration(days: 1),
-                              ),
+                              dueTime: (date == null || time == null)
+                                  ? DateTime.now().add(
+                                      const Duration(minutes: 30),
+                                    )
+                                  : DateTime(
+                                      date!.year,
+                                      date!.month,
+                                      date!.day,
+                                      time!.hour,
+                                      time!.minute,
+                                    ),
                             );
 
-                            await todoDBService.addTodo(todo);
-                            // print(todo);
+                            // await todoDBService.addTodo(todo);
+                            addTodo(todo).then(
+                              (value) => Navigator.pop(builderContext),
+                            );
 
                             // addTask(task);
-                            Navigator.pop(builderContext);
+
                           }
                         },
                         child: const Text(
-                          "Save",
+                          "Add todo",
                           style: TextStyle(
                             // color: Colors.blue,
                             fontSize: 16,
@@ -193,90 +355,6 @@ showAddTodoForm(BuildContext context) {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //         child: GestureDetector(
-                //       child: Container(
-                //         height: 50,
-                //         margin: const EdgeInsets.all(10),
-                //         decoration: BoxDecoration(
-                //           color: Colors.blue,
-                //           borderRadius:
-                //               const BorderRadius.all(Radius.circular(10)),
-                //           boxShadow: [
-                //             BoxShadow(
-                //               blurRadius: 2,
-                //               color: Colors.grey.shade500,
-                //             )
-                //           ],
-                //         ),
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //           children: [
-                //             Text(
-                //               DateFormat('dd-MM-yyyy').format(selectedDate),
-                //               style: const TextStyle(
-                //                 color: backgroundColor,
-                //                 fontSize: 16,
-                //               ),
-                //             ),
-                //             const Icon(
-                //               Icons.calendar_month_outlined,
-                //               color: backgroundColor,
-                //               size: 30,
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //       onTap: () async {
-                //         DateTime? newDate = await showDatePicker(
-                //           context: context,
-                //           initialDate: DateTime.now(),
-                //           firstDate: DateTime.now(),
-                //           lastDate: DateTime(2100),
-                //         );
-                //         if (newDate == null) {
-                //           return;
-                //         } else {
-                //           setState(() {
-                //             selectedDate = newDate;
-                //           });
-                //         }
-                //       },
-                //     )),
-                //   ],
-                // ),
-                // const SizedBox(height: 30),
-
-                // ElevatedButton(
-                //   onPressed: () {
-                //     if (formKey.currentState!.validate()) {
-                //       // var task = Todo(
-                //       // date: selectedDate,
-                //       // title: _controller.text,
-                //       // category: selectedCategory ?? "Do Soon",
-                //       // );
-                //       // var todo = Todo(title: title, description: description, isCompleted: isCompleted,);
-                //       var todo = Todo(
-                //         title: titleController.text,
-                //         description: descriptionController.text,
-                //         isCompleted: false,
-                //       );
-
-                //       // addTask(task);
-                //       Navigator.pop(builderContext);
-                //     }
-                //   },
-                //   child: const Text(
-                //     "Save",
-                //     style: TextStyle(
-                //       // color: Colors.blue,
-                //       fontSize: 16,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           );

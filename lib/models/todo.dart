@@ -5,7 +5,7 @@ part 'todo.g.dart';
 @HiveType(typeId: 0)
 class Todo {
   @HiveField(0)
-  String? id;
+  String id;
 
   @HiveField(1)
   String title;
@@ -20,7 +20,7 @@ class Todo {
   DateTime? dueTime;
 
   Todo({
-    this.id,
+    required this.id,
     required this.title,
     required this.description,
     required this.isCompleted,
