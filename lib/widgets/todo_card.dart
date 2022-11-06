@@ -70,6 +70,7 @@ class TodoCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(15.0),
           ),
           elevation: 2,
+          color: const Color(0xFFE9F4FC),
           child: ListTile(
             // tileColor: Colors.amber,
             title: Text(

@@ -8,14 +8,14 @@ import '../models/todo.dart';
 
 import '../widgets/todo_card.dart';
 
-class TodoListTab extends StatelessWidget {
+class UpcomingTodoList extends StatelessWidget {
   final ValueListenable<List<Todo>> valueListenable;
-  final String? search;
+  final DateTime chosenDate;
 
-  const TodoListTab({
+  const UpcomingTodoList({
     Key? key,
     required this.valueListenable,
-    this.search,
+    required this.chosenDate,
   }) : super(key: key);
 
   @override
@@ -23,10 +23,12 @@ class TodoListTab extends StatelessWidget {
     return ValueListenableBuilder(
         valueListenable: valueListenable,
         builder: (BuildContext builderContext, List<Todo> todos, _) {
-          var filteredTodos = filterTodosBySearch(todos, search);
+          var filteredTodos = filterTodosByDate(todos, chosenDate);
           // return todos.isNotEmpty
           return filteredTodos.isNotEmpty
               ? ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
                   // itemCount: todos.length,
                   itemCount: filteredTodos.length,
                   itemBuilder: (context, index) {

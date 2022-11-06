@@ -1,23 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:to_do/models/todo.dart';
+import 'package:to_do/services/local_notification_service.dart';
 import 'package:to_do/utils/utils.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-// class TodoDBService  {
-// class TodoDBService extends ChangeNotifier {
-//   // late Box<Todo> box;
-
-//   // Future<void> init() async {
-//   //   // Hive.registerAdapter(TodoAdapter());
-//   //   // box = await Hive.openBox<Todo>("todos");
-//   //   // box = Hive.box<Todo>("todos");
-//   //   box = Hive.box<Todo>("test");
-//   // }
-
-//   // TodoDBService() {
-//   //   box = Hive.box<Todo>("test");
-//   // }
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 ValueNotifier<List<Todo>> allTodosNotifier = ValueNotifier([]);
 ValueNotifier<List<Todo>> todayTodosNotifier = ValueNotifier([]);
@@ -27,7 +16,7 @@ ValueNotifier<List<Todo>> upcomingTodosNotifier = ValueNotifier([]);
 // Future<List<Todo>> getTodos() async {
 Future<void> getTodos() async {
   // final box = Hive.box<Todo>("todos");
-  final box = Hive.box<Todo>("testt");
+  final box = Hive.box<Todo>("todos");
   var todos = await Future.value(List<Todo>.from(box.values));
 
   allTodosNotifier.value.clear();
@@ -45,8 +34,6 @@ Future<void> getTodos() async {
     }
   }
 
-  // filterTodosBySearch(allTodosNotifier.value, search.value);
-
   sortTodosByDatetime(allTodosNotifier.value);
   sortTodosByDatetime(todayTodosNotifier.value);
   // sortTodosByDatetime(upcomingTodosNotifier.value);
@@ -54,6 +41,21 @@ Future<void> getTodos() async {
   allTodosNotifier.notifyListeners();
   todayTodosNotifier.notifyListeners();
   upcomingTodosNotifier.notifyListeners();
+
+  // for (var todo in allTodosNotifier.value) {
+  //   // final notificationDateTime =
+  //   //     todo.dueTime!.subtract(const Duration(minutes: 10));
+  //   // if (todo.isCompleted == false &&
+  //   //     notificationDateTime.compareTo(DateTime.now()) <= 0) {
+  //   //   LocalNotificationService()
+  //   //       .showNotification(1, todo.title, todo.description, 10, todo.dueTime!);
+  //   // }
+
+  //   if (todo.isCompleted == false) {
+  //     LocalNotificationService()
+  //         .showNotification(1, todo.title, todo.description, 10, todo.dueTime!);
+  //   }
+  // }
 
   // return todos;
 }
@@ -65,10 +67,7 @@ Todo getTodo(String? id) {
 
 Future<void> addTodo(Todo todo) async {
   // final box = Hive.box<Todo>("todos");
-  final box = Hive.box<Todo>("testt");
-  // await box.put(todo.id, todo);
-  // await box.add(todo);
-  // int id = await box.add(todo);
+  final box = Hive.box<Todo>("todos");
   // todo.id = id.toString();
   await box.put(
     todo.id,
@@ -82,7 +81,7 @@ Future<void> addTodo(Todo todo) async {
 
 Future<void> deleteTodo(Todo todo) async {
   // final box = Hive.box<Todo>("todos");
-  final box = Hive.box<Todo>("testt");
+  final box = Hive.box<Todo>("todos");
   await box.delete(todo.id);
 
   await getTodos();
@@ -90,7 +89,7 @@ Future<void> deleteTodo(Todo todo) async {
 
 Future<void> deleteAllTodos() async {
   // final box = Hive.box<Todo>("todos");
-  final box = Hive.box<Todo>("testt");
+  final box = Hive.box<Todo>("todos");
   await box.clear();
 
   await getTodos();
@@ -99,13 +98,7 @@ Future<void> deleteAllTodos() async {
 
 Future<void> updateTodo(Todo todo) async {
   // final box = Hive.box<Todo>("todos");
-  final box = Hive.box<Todo>("testt");
-  // await deleteTodo(todo);
-
-  // await box.put(
-  //   todo.id,
-  //   todo,
-  // );
+  final box = Hive.box<Todo>("todos");
   await box.put(
     todo.id,
     todo,

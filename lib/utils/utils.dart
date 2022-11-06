@@ -21,6 +21,25 @@ List<Todo> filterTodosBySearch(List<Todo> todos, String? search) {
   }
 }
 
+List<Todo> filterTodosByDate(List<Todo> todos, DateTime chosenDate) {
+  return todos
+      .where(
+        (element) =>
+            DateTime(
+              element.dueTime!.year,
+              element.dueTime!.month,
+              element.dueTime!.day,
+            ) ==
+            DateTime(
+              chosenDate.year,
+              chosenDate.month,
+              chosenDate.day,
+            ),
+      )
+      .toList();
+}
+// }
+
 Future<bool?> showConfirmationDialog(BuildContext context, String action) {
   return showDialog<bool>(
     context: context,
@@ -44,7 +63,7 @@ Future<bool?> showConfirmationDialog(BuildContext context, String action) {
   );
 }
 
-showAddTodoForm(BuildContext context) {
+Future showAddTodoForm(BuildContext context) {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -77,7 +96,7 @@ showAddTodoForm(BuildContext context) {
                     "New Todo",
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.blue,
+                      color: Colors.blueGrey,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

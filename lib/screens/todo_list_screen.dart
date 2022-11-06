@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:horizontal_calendar/horizontal_calendar.dart';
 import 'package:to_do/screens/todo_screen.dart';
+import 'package:to_do/services/local_notification_service.dart';
 import 'package:to_do/services/todo_db_service.dart';
+// import 'package:to_do/widgets/horizontal_calendar.dart';
 import 'package:to_do/widgets/todo_list_tab.dart';
+import 'package:to_do/widgets/upcoming_todo_list.dart';
 
 import '../models/todo.dart';
 import '../utils/utils.dart';
 import '../widgets/todo_card.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class TodoListScreen extends StatefulWidget {
   const TodoListScreen({Key? key}) : super(key: key);
@@ -23,6 +29,7 @@ class _TodoListScreenState extends State<TodoListScreen>
   int tabIndex = 0;
   late TabController tabController;
   String? search;
+  DateTime? chosenDate;
 
   @override
   void initState() {
@@ -53,16 +60,22 @@ class _TodoListScreenState extends State<TodoListScreen>
         // extendBodyBehindAppBar: true,
         appBar: AppBar(
           centerTitle: true,
-          title: Text(
-            "Todo List",
-            style: TextStyle(
-              // color: Colors.black87,
-              color: Colors.blue[700],
-              fontWeight: FontWeight.w700,
-              fontSize: 28,
+          title: GestureDetector(
+            onTap: () async {
+              await LocalNotificationService().showNotificationNow(
+                  1, "Go to bed", "Sleep at 10PM", context);
+            },
+            child: Text(
+              "TodoList",
+              style: TextStyle(
+                // color: Colors.black87,
+                color: Color(0xFFF8F8F9),
+                fontWeight: FontWeight.w700,
+                fontSize: 28,
+              ),
             ),
           ),
-          backgroundColor: Colors.transparent,
+          // backgroundColor: Colors.transparent,
           // elevation: 1,
           elevation: 0.0,
         ),
@@ -121,7 +134,7 @@ class _TodoListScreenState extends State<TodoListScreen>
 
                 labelColor: Colors.blue,
                 unselectedLabelColor: Colors.grey,
-                // isScrollable: true,
+                isScrollable: true,
                 tabs: const [
                   Tab(
                     text: "All",
@@ -141,24 +154,6 @@ class _TodoListScreenState extends State<TodoListScreen>
                 child: TabBarView(
                   controller: tabController,
                   children: [
-                    // Expanded(
-                    //   child: TodoListTab(
-                    //     // valueListenable: todoDBService.allTodosNotifier,
-                    //     valueListenable: allTodosNotifier,
-                    //   ),
-                    // ),
-                    // Expanded(
-                    //   child: TodoListTab(
-                    //     // valueListenable: todoDBService.allTodosNotifier,
-                    //     valueListenable: todayTodosNotifier,
-                    //   ),
-                    // ),
-                    // Expanded(
-                    //   child: TodoListTab(
-                    //     // valueListenable: todoDBService.allTodosNotifier,
-                    //     valueListenable: upcomingTodosNotifier,
-                    //   ),
-                    // ),
                     TodoListTab(
                       // valueListenable: todoDBService.allTodosNotifier,
                       valueListenable: allTodosNotifier,
@@ -169,10 +164,34 @@ class _TodoListScreenState extends State<TodoListScreen>
                       valueListenable: todayTodosNotifier,
                       search: search,
                     ),
-                    TodoListTab(
-                      // valueListenable: todoDBService.allTodosNotifier,
-                      valueListenable: upcomingTodosNotifier,
-                      search: search,
+                    ListView(
+                      children: [
+                        Container(
+                          height: 80,
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          child: HorizontalCalendar(
+                            date: DateTime.now(),
+                            textColor: Colors.black45,
+                            backgroundColor: Colors.white,
+                            selectedColor: Colors.orange,
+                            showMonth: true,
+                            onDateSelected: (date) {
+                              setState(() {
+                                chosenDate = DateTime.parse(date);
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        SingleChildScrollView(
+                          child: UpcomingTodoList(
+                            valueListenable: allTodosNotifier,
+                            chosenDate: chosenDate ?? DateTime.now(),
+                          ),
+                        )
+                      ],
                     ),
                   ],
                 ),
