@@ -23,7 +23,9 @@ Future<void> main() async {
   // ..registerAdapter(TodoAdapter());
   // var box = await Hive.openBox<Todo>('todos');
   // await Hive.openBox<Todo>("todos");
-  await Hive.openBox<Todo>("test");
+  var box = await Hive.openBox<Todo>("test");
+  // box.clear();
+  // box.deleteFromDisk();
 
   runApp(const MyApp());
 }

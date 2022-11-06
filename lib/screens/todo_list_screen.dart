@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:to_do/screens/todo_screen.dart';
 import 'package:to_do/services/todo_db_service.dart';
+import 'package:to_do/widgets/todo_list_tab.dart';
 
 import '../models/todo.dart';
 import '../utils/utils.dart';
@@ -18,15 +19,18 @@ class _TodoListScreenState extends State<TodoListScreen> {
   // late Box<Todo> box;
   // late List<Todo> todos;
   // var service = TodoService();
-
-  // @override
-  // void initState() async {
-  //   box = Hive.box<Todo>("test");
-  //   todos = await service.getTodos();
-  //   print(todos);
-  //   super.initState();
-  // }
   int tabIndex = 0;
+  late TodoDBService todoDBService;
+
+  @override
+  void initState() {
+    todoDBService = TodoDBService();
+    // var todos = todoDBService.getTodos();
+    // print(todos);
+    todoDBService.getTodos();
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -130,42 +134,60 @@ class _TodoListScreenState extends State<TodoListScreen> {
                 height: 10,
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return TodoCard(
-                      todo: Todo(
-                        id: "1",
-                        title: "titlee",
-                        description: "description",
-                        isCompleted: index % 2 == 0,
-                      ),
-                      onTap: (todo) {
-                        // todo.isCompleted = !todo.isCompleted;
-                        // context.read<TodosProvider>().update(todo);
-                      },
-                      onDelete: (todo) {
-                        // context.read<TodosProvider>().removeTodo(todo);
-                      },
-                      onEdit: (todo) {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     fullscreenDialog: true,
-                        //     builder: (_) {
-                        //       return ChangeNotifierProvider<TodosProvider>.value(
-                        //         value: context.read<TodosProvider>(),
-                        //         child: TodosFormScreen(
-                        //           todo: todo,
-                        //         ),
-                        //       );
-                        //     },
-                        //   ),
-                        // );
-                      },
-                    );
-                  },
+                child: TodoListTab(
+                  valueListenable: todoDBService.allTodosNotifier,
                 ),
+                // todoDBService.allTodosNotifier.value.isNotEmpty
+                //     ? ListView.builder(
+                //         itemCount: todoDBService.allTodosNotifier.value.length,
+                //         itemBuilder: (context, index) {
+                //           var todos = todoDBService.allTodosNotifier.value;
+                //           return TodoCard(
+                //             todo: todos[index],
+                //             // Todo(
+                //             //   id: "1",
+                //             //   title: "titlee",
+                //             //   description: "description",
+                //             //   isCompleted: index % 2 == 0,
+                //             // ),
+                //             onTap: (todo) {
+                //               // todo.isCompleted = !todo.isCompleted;
+                //               // context.read<TodosProvider>().update(todo);
+                //             },
+                //             onDelete: (todo) {
+                //               // context.read<TodosProvider>().removeTodo(todo);
+                //             },
+                //             onEdit: (todo) {
+                //               // Navigator.push(
+                //               //   context,
+                //               //   MaterialPageRoute(
+                //               //     fullscreenDialog: true,
+                //               //     builder: (_) {
+                //               //       return ChangeNotifierProvider<TodosProvider>.value(
+                //               //         value: context.read<TodosProvider>(),
+                //               //         child: TodosFormScreen(
+                //               //           todo: todo,
+                //               //         ),
+                //               //       );
+                //               //     },
+                //               //   ),
+                //               // );
+                //             },
+                //           );
+                //         },
+                //       )
+                //     : Container(
+                //         margin: const EdgeInsets.only(top: 30),
+                //         child: const Text(
+                //           "There is currently no todo!",
+                //           style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.bold,
+                //             fontStyle: FontStyle.italic,
+                //             color: Colors.grey,
+                //           ),
+                //         ),
+                //       ),
               ),
             ],
           ),

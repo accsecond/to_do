@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:to_do/models/todo.dart';
+import 'package:to_do/services/todo_db_service.dart';
 
 void sortTodosByDatetime(List<Todo> todos) {
   todos.sort((a, b) => a.dueTime!.compareTo(b.dueTime!));
@@ -32,6 +33,7 @@ showAddTodoForm(BuildContext context) {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  var todoDBService = TodoDBService();
 
   return showModalBottomSheet(
       context: context,
@@ -154,7 +156,7 @@ showAddTodoForm(BuildContext context) {
                         height: 10,
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (formKey.currentState!.validate()) {
                             // var task = Todo(
                             // date: selectedDate,
@@ -166,9 +168,13 @@ showAddTodoForm(BuildContext context) {
                               title: titleController.text,
                               description: descriptionController.text,
                               isCompleted: false,
+                              dueTime: DateTime.now().add(
+                                const Duration(days: 1),
+                              ),
                             );
 
-                            print(todo);
+                            await todoDBService.addTodo(todo);
+                            // print(todo);
 
                             // addTask(task);
                             Navigator.pop(builderContext);

@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../models/todo.dart';
 import '../utils/utils.dart';
+import 'package:intl/intl.dart';
 
 class TodoCard extends StatelessWidget {
   final Todo _todo;
@@ -23,57 +24,65 @@ class TodoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const notCompletedIconColor = Color(0xFF4ED9D6);
     final completedIconColor = notCompletedIconColor.withAlpha(100);
-    return Card(
-      // elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      child: Slidable(
-        key: const ValueKey(0),
-        endActionPane: ActionPane(
-          motion: const StretchMotion(),
-          dismissible: DismissiblePane(
-            onDismissed: () {
-              onDelete(_todo);
-            },
-            closeOnCancel: true,
-            confirmDismiss: () async {
-              // var isConfirmed = await _showConfirmationDialog(context, "delete") ?? false;
-              var isConfirmed =
-                  await showConfirmationDialog(context, "delete") ?? false;
-              return isConfirmed;
-            },
-          ),
-          children: [
-            SlidableAction(
-              flex: 1,
-              onPressed: (context) async {
-                // bool isConfirmed = await _showConfirmationDialog(context, "delete") ?? false;
-                bool isConfirmed =
-                    await showConfirmationDialog(context, "delete") ?? false;
-                print(isConfirmed);
-                if (isConfirmed == true) {
-                  onDelete(_todo);
-                }
-              },
-              backgroundColor: const Color(0xFFFE4A69),
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-              label: "Delete",
-              // borderRadius: ,
-            ),
-            // SlidableAction(
-            //   flex: 1,
-            //   onPressed: (context) async {},
-            //   backgroundColor: const Color(0xFF7BC043),
-            //   foregroundColor: Colors.white,
-            //   icon: Icons.archive,
-            //   label: "Archive",
-            // )
-          ],
+    return
+        // Card(
+        //   // elevation: 2,
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(15.0),
+        //   ),
+        Slidable(
+      key: const ValueKey(0),
+      endActionPane: ActionPane(
+        motion: const StretchMotion(),
+        dismissible: DismissiblePane(
+          onDismissed: () {
+            onDelete(_todo);
+          },
+          closeOnCancel: true,
+          confirmDismiss: () async {
+            // var isConfirmed = await _showConfirmationDialog(context, "delete") ?? false;
+            var isConfirmed =
+                await showConfirmationDialog(context, "delete") ?? false;
+            return isConfirmed;
+          },
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(0.0),
+        children: [
+          SlidableAction(
+            flex: 1,
+            onPressed: (context) async {
+              // bool isConfirmed = await _showConfirmationDialog(context, "delete") ?? false;
+              bool isConfirmed =
+                  await showConfirmationDialog(context, "delete") ?? false;
+              print(isConfirmed);
+              if (isConfirmed == true) {
+                onDelete(_todo);
+              }
+            },
+            backgroundColor: const Color(0xFFFE4A69),
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: "Delete",
+            // borderRadius: ,
+          ),
+          // SlidableAction(
+          //   flex: 1,
+          //   onPressed: (context) async {},
+          //   backgroundColor: const Color(0xFF7BC043),
+          //   foregroundColor: Colors.white,
+          //   icon: Icons.archive,
+          //   label: "Archive",
+          // )
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(0.0),
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(15.0),
+        //   ),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
           child: ListTile(
             // tileColor: Colors.amber,
             title: Text(
@@ -112,8 +121,9 @@ class TodoCard extends StatelessWidget {
                 onTap(_todo);
               },
             ),
-            trailing: const Text(
-              "Sun, Nov 7 2022",
+            trailing: Text(
+              DateFormat().format(_todo.dueTime!),
+              // "Sun, Nov 7 2022",
               style: TextStyle(
                 fontStyle: FontStyle.italic,
               ),
@@ -124,6 +134,7 @@ class TodoCard extends StatelessWidget {
           ),
         ),
       ),
+      // ),
     );
   }
 
