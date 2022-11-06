@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:hive/hive.dart';
 
 part 'todo.g.dart';
@@ -7,7 +5,7 @@ part 'todo.g.dart';
 @HiveType(typeId: 0)
 class Todo {
   @HiveField(0)
-  String id;
+  String? id;
 
   @HiveField(1)
   String title;
@@ -22,7 +20,7 @@ class Todo {
   DateTime? dueTime;
 
   Todo({
-    required this.id,
+    this.id,
     required this.title,
     required this.description,
     required this.isCompleted,
@@ -31,5 +29,5 @@ class Todo {
 
   @override
   String toString() =>
-      "id:$id, title:$title, description:$description, complete:$isCompleted";
+      "{id:$id, title:$title, description:$description, complete:$isCompleted}";
 }

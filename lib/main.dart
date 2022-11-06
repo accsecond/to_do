@@ -1,7 +1,6 @@
 // import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:to_do/models/todo.dart';
@@ -17,9 +16,11 @@ Future<void> main() async {
   // ..init((await getTemporaryDirectory()).path)
   // ..init((await getApplicationSupportDirectory()).path)
   await Hive.initFlutter();
-  Hive
-    // ..init((await getApplicationDocumentsDirectory()).path)
-    ..registerAdapter(TodoAdapter());
+  Hive.registerAdapter(TodoAdapter());
+
+  // Hive
+  // ..init((await getApplicationDocumentsDirectory()).path)
+  // ..registerAdapter(TodoAdapter());
   // var box = await Hive.openBox<Todo>('todos');
   // await Hive.openBox<Todo>("todos");
   await Hive.openBox<Todo>("test");
